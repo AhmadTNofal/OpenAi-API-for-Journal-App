@@ -26,5 +26,28 @@ def give_advice():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/track-mood', methods=['POST'])
+def track_mood():
+    data = request.get_json()
+    if not data or 'notes' not in data:
+        return jsonify({"error": "Invalid data. A list of 'notes' is required."}), 400
+
+    notes = data['notes']
+    combined_entries = "".join([f"Journal entry titled '{n['title']}': {n['content']}\n" for n in notes])
+
+    prompt = f"{combined_entries}\nBased on these journal entries, provide a single emoji that best represents the overall mood."
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "system", "content": "You are an assistant that analyzes mood based on text."}, {"role": "user", "content": prompt}],
+            max_tokens=2
+        )
+        emoji = response['choices'][0]['message']['content'].strip()
+        return jsonify({"mood": emoji}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True)
