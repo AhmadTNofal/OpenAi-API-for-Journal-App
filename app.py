@@ -2,7 +2,7 @@ import openai
 from flask import Flask, request, jsonify
 
 app = Flask(__name__)
-openai.api_key = 'sk-tbtbdjXN0PNeKVX8x6oXJFABUkwYsEeOj9TinWn3jOT3BlbkFJuGto6skfATpazIFkDBnEr1JtKDe0ykgJkavseRQP0A'  # replace with your actual key
+openai.api_key = 'sk-tbtbdjXN0PNeKVX8x6oXJFABUkwYsEeOj9TinWn3jOT3BlbkFJuGto6skfATpazIFkDBnEr1JtKDe0ykgJkavseRQP0A'  
 
 @app.route('/api/give-advice', methods=['POST'])
 def give_advice():
