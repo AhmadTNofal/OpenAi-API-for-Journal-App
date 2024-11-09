@@ -48,9 +48,9 @@ def track_mood():
             model="gpt-3.5-turbo",
             messages=[{"role": "system", "content": "You are an assistant that analyzes mood based on text."}, {"role": "user", "content": prompt}],
             max_tokens=2,
-            n=1,  # Ensure only one response
-            stop=None,  # Avoid using stop sequences
-            temperature=0.7  # Adjust temperature for better emoji results
+            n=1,  
+            stop=None,  
+            temperature=0.7  
         )
         emoji = response['choices'][0]['message']['content'].strip()
         
