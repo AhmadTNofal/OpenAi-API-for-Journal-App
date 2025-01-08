@@ -35,32 +35,41 @@ def track_mood():
         return jsonify({"error": "Invalid data. A single note with 'title' and 'content' is required."}), 400
 
     note = data['notes'][0]
-    if 'title' not in note or 'content' not in note:
-        return jsonify({"error": "Invalid data. 'title' and 'content' are required in the note."}), 400
+    title = note.get('title', '').strip()
+    content = note.get('content', '').strip()
 
-    title = note['title']
-    content = note['content']
+    if not title or not content:
+        return jsonify({"error": "Invalid data. 'title' and 'content' are required and cannot be empty."}), 400
 
-    prompt = f"Journal entry titled '{title}': {content}\nProvide a single emoji that best represents the mood of this journal entry."
+    # Refined prompt to encourage more accurate and creative emoji responses
+    prompt = (
+        f"Journal entry titled '{title}': {content}\n"
+        "Based on this journal entry, provide a single emoji that best reflects its mood. "
+        "Be creative and pick the emoji that feels most emotionally appropriate."
+    )
 
     try:
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "system", "content": "You are an assistant that analyzes mood based on text."}, {"role": "user", "content": prompt}],
-            max_tokens=2,
-            n=1,  
-            stop=None,  
-            temperature=0.7  
+            messages=[
+                {"role": "system", "content": "You are an assistant that analyzes mood based on text."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=5,  # Restrict response length to a single emoji
+            n=1,
+            stop=None,
+            temperature=0.8  # Slightly higher temperature for creativity
         )
         emoji = response['choices'][0]['message']['content'].strip()
         
-        # Ensure the emoji is valid and does not contain additional text
-        if not emoji or len(emoji) > 2:  # Most emojis are one character, but some are two
-            emoji = "❓"  # Default emoji if the response is invalid
+        # Validate the emoji response
+        if not emoji or len(emoji) > 2:  # Most emojis are 1-2 characters
+            emoji = "🤔"  # Default fallback emoji for invalid responses
         
         return jsonify({"mood": emoji}), 200
     except Exception as e:
         return jsonify({"error": "Failed to analyze mood. Please try again later."}), 500
+
 
 if __name__ == '__main__':
     app.run(debug=True)
